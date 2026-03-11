@@ -113,18 +113,40 @@
             <ul class="navbar-nav ms-auto">
 
 
-                <li class="nav-item">
-            
-                    <a class="btn btn-alert navbar-btn text-white" type="button"  href="/"> Register </a>
-
-                </li>
-
+                {% if user.is_authenticated %}
 
                 <li class="nav-item">
-
-                    <a class="btn btn-alert navbar-btn text-white" type="button"  href="/"> Login </a>
-
+                    <span class="text-white me-3">
+                        Hello, {{ user.username }}
+                    </span>
                 </li>
+
+                <li class="nav-item">
+                <li class="nav-item">
+                <a href="{% url 'my-orders' %}" class="btn btn-outline-light btn-sm me-2">
+                My Orders
+                </a>
+                </li>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">
+                        Logout
+                    </a>
+                </li>
+                
+                {% else %}
+
+                <li class="nav-item">
+                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-sm me-2">
+                        Register
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'login' %}" class="btn btn-light btn-sm">
+                        Login
+                    </a>
+                </li>
+
+                {% endif %}
 
 
                 &nbsp; &nbsp; &nbsp;
@@ -132,11 +154,12 @@
 
                 <li class="nav-item">
 
-                    <a type="button" role="button" href="/" class="btn btn-outline-secondary"> 
+                    <a type="button" role="button" href="{% url 'view-cart' %}" class="btn btn-outline-secondary"> 
                     
 
 
                         <i class="fa fa-shopping-cart" aria-hidden="true"> </i>
+                        <span class="badge bg-danger">{{ cart_count }}</span>
 
 
                     </a>
@@ -150,7 +173,20 @@
 
         
         </div>
+        <!-- SEARCH BAR -->
+        <form class="d-flex" method="GET" action="{% url 'store' %}">
 
+            <input class="form-control me-2"
+                   type="search"
+                   name="q"
+                   placeholder="Search products"
+                   required>
+
+            <button class="btn btn-light" type="submit">
+                Search
+            </button>
+
+        </form>
 
     </nav>
 

@@ -38,10 +38,21 @@ path(
 ),
 
 path('api/products/stats/', views.api_product_stats),
+#cart
+path('add-to-cart/', views.add_to_cart, name='add-to-cart'),
+path('cart/', views.view_cart, name='view-cart'),
+#remove from cart
+path('remove-from-cart/', views.remove_from_cart, name='remove-from-cart'),
+#increase and decrease from cart
+path('update-cart/', views.update_cart_quantity, name='update-cart'),
 
-
-
-
+#checkout and success
+path('checkout/', views.checkout, name='checkout'),
+path('order-success/', views.order_success, name='order-success'),
+path("payment-success/", views.payment_success, name="payment_success"),
+path('my-orders/', views.my_orders, name='my-orders'),
+path('order/<int:order_id>/', views.order_detail, name='order-detail'),
+path('address/', views.address, name='address'),
 ]
 
 

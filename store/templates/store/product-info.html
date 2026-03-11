@@ -44,7 +44,15 @@
                         </div>
 
                     </div>
-
+{% if product.stock > 0 %}
+<p class="text-success">
+    In Stock: {{ product.stock }}
+</p>
+{% else %}
+<p class="text-danger">
+    Out of Stock
+</p>
+{% endif %}
                     <div class="col">
               
                         <div class="row p-3">
@@ -72,16 +80,27 @@
 
                             </div>
 
-                            <div class="col-6 text-end">
-                                
-                                <button type="button" id="add-button" value="" class="btn btn-secondary btn-sm">
-                        
-                                Add to cart 
-                            
-                                </button> 
-                            
+ <div class="col-6 text-end">
 
-                            </div>
+{% if product.stock > 0 %}
+
+<button type="button"
+        data-product-id="{{ product.id }}"
+        id="add-button"
+        class="btn btn-primary">
+    <i class="fa fa-shopping-cart"></i>
+    Add to Cart
+</button>
+
+{% else %}
+
+<button class="btn btn-secondary" disabled>
+    Out of Stock
+</button>
+
+{% endif %}
+
+</div>                           
                         
                         </div>
 
@@ -98,5 +117,27 @@
     <br>
 
 </div>
+
+
+// AJAX 
+<script>
+    $(document).on('click', '#add-button', function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'add-to-cart' %}",
+            data: {
+                product_id: $(this).data('product-id'),
+                quantity: $('#select').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function (response) {
+                alert(response.message);
+                location.reload();
+            }
+        });
+    });
+</script>
 
 {% endblock %}

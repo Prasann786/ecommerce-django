@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'store', #django app
     'rest_framework',
+    'accounts', #accounts app
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'store.views.categories', #updated
+                'store.views.cart_count',
             ],
         },
     },
@@ -131,3 +133,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "lopsided-renna-ceremoniously.ngrok-free.dev"
+]
+
+
+RAZORPAY_KEY_ID = "rzp_test_SPtjdMS1GSoBLI"
+RAZORPAY_KEY_SECRET = "z4wWzNwx1Gz4ul4jIy5RB4zJ"
+
+
+
+

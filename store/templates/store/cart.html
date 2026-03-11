@@ -1,0 +1,132 @@
+
+{% extends "./base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h3>Your Cart</h3>
+    <div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'store' %}" class="btn btn-secondary">
+        ← Continue Shopping
+    </a>
+</div>
+    <hr>
+
+    {% if items %}
+        {% for item in items %}
+            <div class="row mb-3 cart-row align-items-center">
+
+                <!-- Product Image -->
+                <div class="col-md-2">
+                    <img src="{{ item.product.image.url }}" 
+                         class="img-fluid" 
+                         width="100">
+                </div>
+
+                <!-- Product Info -->
+                <div class="col-md-6">
+                    <h5>{{ item.product.title }}</h5>
+                    <div class="d-flex align-items-center mt-2">
+
+                        <button class="btn btn-sm btn-outline-secondary update-cart"
+                                data-action="decrease"
+                                data-product-id="{{ item.product.id }}">-</button>
+
+                        <span class="mx-3 quantity">{{ item.quantity }}</span>
+
+                        <button class="btn btn-sm btn-outline-secondary update-cart"
+                                data-action="increase"
+                                data-product-id="{{ item.product.id }}">+</button>
+
+                    </div>
+                    <p>Price: $ {{ item.product.price }}</p>
+                </div>
+
+                <!-- Price + Remove -->
+                <div class="col-md-4 text-end">
+                    <strong>$ {{ item.product.price }}</strong>
+                    <br><br>
+
+                    <button class="btn btn-danger btn-sm remove-item"
+                            data-product-id="{{ item.product.id }}">
+                        Remove
+                    </button>
+                </div>
+
+            </div>
+        {% endfor %}
+
+        <hr>
+        <h4>Total: $ {{ total }}</h4>
+        <a href="{% url 'address' %}" class="btn btn-success"></a>
+        Checkout
+        </a>
+        
+    
+
+    {% else %}
+
+    <p>Your cart is empty</p>
+
+    {% endif %}
+</div>
+<script>
+$(document).on('click', '.update-cart', function (e) {
+    e.preventDefault();
+
+    var button = $(this);
+    var productId = button.data('product-id');
+    var action = button.data('action');
+    var row = button.closest('.cart-row');
+
+    $.ajax({
+        type: 'POST',
+        url: "/update-cart/",
+        data: {
+            product_id: productId,
+            action: action,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+
+            if (response.deleted) {
+                row.remove();
+                return;
+            }
+
+            row.find('.quantity').text(response.quantity);
+
+            $("h4:contains('Total')")
+                .text("Total: $ " + response.cart_total.toFixed(2));
+
+            $(".badge").text(response.cart_count);
+        }
+    });
+});
+$(document).on('click', '.remove-item', function (e) {
+    e.preventDefault();
+
+    var productId = $(this).data('product-id');
+    var row = $(this).closest('.cart-row');
+
+    $.ajax({
+        type: 'POST',
+        url: "/remove-from-cart/",
+        data: {
+            product_id: productId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+
+            row.remove();
+
+            $("h4:contains('Total')")
+                .text("Total: $ " + response.cart_total.toFixed(2));
+
+            $(".badge").text(response.cart_count);
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+
+{% extends "./base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+<h3>Shipping Address</h3>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<div class="mb-3">
+<input type="text" name="full_name" class="form-control" placeholder="Full Name" required>
+</div>
+
+<div class="mb-3">
+<input type="text" name="phone" class="form-control" placeholder="Phone Number" required>
+</div>
+
+<div class="mb-3">
+<input type="text" name="address_line" class="form-control" placeholder="Address" required>
+</div>
+
+<div class="mb-3">
+<input type="text" name="city" class="form-control" placeholder="City" required>
+</div>
+
+<div class="mb-3">
+<input type="text" name="state" class="form-control" placeholder="State" required>
+</div>
+
+<div class="mb-3">
+<input type="text" name="postal_code" class="form-control" placeholder="Postal Code" required>
+</div>
+
+<button type="submit" class="btn btn-primary">
+Continue to Payment
+</button>
+<div class="mb-3">
+    <a href="{% url 'view-cart' %}" class="btn btn-secondary">
+        ← Back to Cart
+    </a>
+</div>
+</form>
+
+</div>
+
+{% endblock %}

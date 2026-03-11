@@ -1,0 +1,18 @@
+
+{% extends "store/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Register</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="username" placeholder="Username" class="form-control mb-3" required>
+        <input type="email" name="email" placeholder="Email" class="form-control mb-3" required>
+        <input type="password" name="password" placeholder="Password" class="form-control mb-3" required>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+</div>
+{% endblock %}
