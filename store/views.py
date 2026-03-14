@@ -29,6 +29,18 @@ from django.conf import settings
 from django.http import JsonResponse
 import json
 
+#threading
+import threading
+from .tasks import generate_invoice
+from django.core.mail import send_mail
+from django.conf import settings
+
+
+#stock race condition
+from django.db import transaction
+
+
+
 
 
 # Create your views here.
@@ -160,7 +172,10 @@ def add_to_cart(request):
     quantity = int(request.POST.get('quantity', 1))
 
     product = get_object_or_404(Product, id=product_id)
-
+    if quantity > product.stock:
+        return JsonResponse({
+            'error': 'Only limited stock available'
+        })
     if not request.session.session_key:
         request.session.create()
 
@@ -189,7 +204,7 @@ def cart_count(request):
     if session_id:
         cart = Cart.objects.filter(session_id=session_id).first()
         if cart:
-            count = sum(item.quantity for item in cart.items.all())
+            count = cart.items.count()
 
     return {'cart_count': count}
 
@@ -268,8 +283,12 @@ def update_cart_quantity(request):
 
     if not cart_item:
         return JsonResponse({'error': 'Item not found'}, status=404)
-
+    product = cart_item.product
     if action == "increase":
+        if cart_item.quantity >= product.stock:
+            return JsonResponse({
+                "error": "Maximum stock reached"
+            })
         cart_item.quantity += 1
 
     elif action == "decrease":
@@ -340,10 +359,15 @@ def checkout(request):
 import json
 from django.views.decorators.csrf import csrf_exempt
 
+
+#multiprocessing
+
+
+    # Here you could create PDF invoice
+    # save invoice file
+    # send invoice email
 @csrf_exempt
 @login_required
-
-
 def payment_success(request):
 
     print("PAYMENT SUCCESS API CALLED")
@@ -380,8 +404,17 @@ def payment_success(request):
         # create order
         order = Order.objects.create(
             user=request.user,
-            total_price=total
+            total_price=total,
+            razorpay_payment_id=payment_id,
+            status="paid"
         )
+        
+        thread = threading.Thread(target=generate_invoice, args=(order.id,))
+        thread.start()
+        threading.Thread(
+            target=send_order_email,
+            args=(request.user.email, order.id)
+        ).start()
 
         # create order items
         for item in cart_items:
@@ -393,9 +426,19 @@ def payment_success(request):
             price=item.product.price
             )
 
-            # ⭐ reduce stock
-            item.product.stock -= item.quantity
-            item.product.save()
+            # race condition
+            # safe stock update
+        with transaction.atomic():
+
+            for item in cart_items:
+                product = Product.objects.select_for_update().get(id=item.product.id)
+
+                if product.stock < item.quantity:
+                    return JsonResponse({
+                        "error": "Product out of stock"
+                    })
+                item.product.stock -= item.quantity
+                item.product.save()
 
         # 🚨 DELETE CART
         cart_items.delete()
@@ -422,7 +465,7 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def my_orders(request):
 
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    orders = Order.objects.select_related("user").prefetch_related("items").filter(user=request.user).order_by('-created_at')
 
     return render(request, "store/my-orders.html", {
         "orders": orders
@@ -433,7 +476,7 @@ def order_detail(request, order_id):
 
     order = Order.objects.get(id=order_id, user=request.user)
 
-    items = order.items.all()
+    items = order.items.select_related("product").all()
 
     return render(request, "store/order-detail.html", {
         "order": order,
@@ -460,9 +503,19 @@ def address(request):
     return render(request, "store/address.html")
 
 
+#threading
+def send_order_email(user_email, order_id):
+
+    send_mail(
+        subject="Order Confirmation",
+        message=f"Your order #{order_id} has been placed successfully.",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user_email],
+        fail_silently=True,
+    )
 
 
-
+#Race Condition stock
 
 
 

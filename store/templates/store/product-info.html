@@ -18,7 +18,9 @@
             </div>
 
             <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
-
+            <a href="javascript:history.back()" class="btn btn-secondary mb-3">
+            ← Back
+            </a>
                 <h1 class="mb-0 h4"> {{ product.title }}  </h1>
 
                 <strong>{{ product.brand }} </strong>
@@ -119,7 +121,7 @@
 </div>
 
 
-// AJAX 
+<!-- AJAX -->
 <script>
     $(document).on('click', '#add-button', function (e) {
         e.preventDefault();

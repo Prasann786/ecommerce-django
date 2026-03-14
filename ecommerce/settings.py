@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'store', #django app
+    
     'rest_framework',
     'accounts', #accounts app
+    'debug_toolbar', 
+    'store.apps.StoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -66,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'store.views.categories', #updated
                 'store.views.cart_count',
+                'store.context_processors.cart_count',
             ],
         },
     },
@@ -145,6 +149,9 @@ ALLOWED_HOSTS = [
 RAZORPAY_KEY_ID = "rzp_test_SPtjdMS1GSoBLI"
 RAZORPAY_KEY_SECRET = "z4wWzNwx1Gz4ul4jIy5RB4zJ"
 
+#threading testing
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
-
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

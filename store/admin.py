@@ -39,6 +39,16 @@ from .models import Address
 
 admin.site.register(Address)
 
+#order status
+from .models import Order
+#sessions
+from django.contrib.sessions.models import Session
+from django.contrib import admin
+
+admin.site.register(Session)
+
+
+
 
 
 
